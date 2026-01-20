@@ -59,24 +59,20 @@ const MenuItemCard = ({ item, categorySlug, index }: MenuItemCardProps) => {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          {item.model3D && (
-            <Link
-              to={`/item/${categorySlug}/${item.slug}`}
-              className="btn-secondary flex-1 text-sm py-2.5 gap-2"
-            >
-              <Box className="w-4 h-4" />
-              View in 3D
-            </Link>
-          )}
-          {item.model3D && (
-            <Link
-              to={`/item/${categorySlug}/${item.slug}?ar=true`}
-              className="btn-primary flex-1 text-sm py-2.5 gap-2"
-            >
-              <Eye className="w-4 h-4" />
-              View in AR
-            </Link>
-          )}
+          <Link
+            to={`/item/${categorySlug}/${item.slug}`}
+            className="btn-secondary flex-1 text-sm py-2.5 gap-2"
+          >
+            <Box className="w-4 h-4" />
+            View in 3D
+          </Link>
+          <Link
+            to={`/item/${categorySlug}/${item.slug}?ar=true`}
+            className="btn-primary flex-1 text-sm py-2.5 gap-2"
+          >
+            <Eye className="w-4 h-4" />
+            View in AR
+          </Link>
         </div>
       </div>
     </div>
