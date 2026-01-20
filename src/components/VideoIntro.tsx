@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import earthmonkLogo from "@/assets/earthmonk-logo.png";
 
 interface VideoIntroProps {
   videoSrc: string;
@@ -10,16 +11,36 @@ interface VideoIntroProps {
 const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
+  const [showPreloader, setShowPreloader] = useState(true);
+  const [videoReady, setVideoReady] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const [showLogo, setShowLogo] = useState(false);
+
+  // Minimum display time for logo preloader (2.5 seconds)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinTimeElapsed(true);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Transition to video when both conditions met
+  useEffect(() => {
+    if (videoReady && minTimeElapsed) {
+      setShowPreloader(false);
+      // Small delay then play video
+      setTimeout(() => {
+        videoRef.current?.play().catch(console.error);
+      }, 500);
+    }
+  }, [videoReady, minTimeElapsed]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const handleLoadedData = () => {
-      setIsLoading(false);
-      video.play().catch(console.error);
+      setVideoReady(true);
     };
 
     const handleTimeUpdate = () => {
@@ -47,16 +68,26 @@ const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroPr
   }, [navigate, onComplete, redirectTo]);
 
   return (
-    <div className="fixed inset-0 bg-earth-dark overflow-hidden">
-      {/* Loading Spinner */}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-cream border-t-terracotta rounded-full animate-spin" />
-            <span className="text-cream font-display text-lg">Loading...</span>
+    <div className="fixed inset-0 bg-background overflow-hidden">
+      {/* Logo Preloader */}
+      <div 
+        className={`absolute inset-0 bg-background flex items-center justify-center z-30 transition-opacity duration-700 ${
+          showPreloader ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="flex flex-col items-center gap-6 animate-fade-in-up">
+          {/* Logo Image */}
+          <img 
+            src={earthmonkLogo} 
+            alt="The House of Earthmonk" 
+            className="w-64 md:w-80 animate-pulse-subtle"
+          />
+          {/* Elegant Loading Bar */}
+          <div className="w-32 h-0.5 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-accent animate-loading-bar" />
           </div>
         </div>
-      )}
+      </div>
 
       {/* Video */}
       <video
@@ -72,7 +103,7 @@ const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroPr
       <div 
         className="absolute inset-0 pointer-events-none z-10"
         style={{ 
-          background: 'linear-gradient(180deg, rgba(74, 63, 53, 0) 50%, rgba(74, 63, 53, 0.6) 100%)' 
+          background: 'linear-gradient(180deg, rgba(26, 26, 26, 0) 50%, rgba(26, 26, 26, 0.6) 100%)' 
         }}
       />
 
@@ -82,14 +113,11 @@ const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroPr
           showLogo ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <div className="text-center">
-          <h1 className="font-display text-4xl md:text-6xl text-cream mb-2">
-            The House of
-          </h1>
-          <h1 className="font-display text-5xl md:text-7xl text-terracotta font-bold">
-            Earthmonk
-          </h1>
-        </div>
+        <img 
+          src={earthmonkLogo} 
+          alt="The House of Earthmonk" 
+          className="w-72 md:w-96 animate-fade-in"
+        />
       </div>
     </div>
   );
