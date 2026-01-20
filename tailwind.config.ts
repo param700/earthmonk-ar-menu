@@ -47,38 +47,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Earthmonk Brand Colors
-        terracotta: {
-          DEFAULT: "#C86F4B",
-          light: "#D98B6B",
-          dark: "#B05F3B",
+        // Premium Dark Theme Colors
+        gold: {
+          DEFAULT: "hsl(35 45% 62%)",
+          bright: "hsl(38 55% 68%)",
         },
-        sage: {
-          DEFAULT: "#7A9B76",
-          light: "#94B490",
-          dark: "#658261",
-        },
-        forest: {
-          DEFAULT: "#2F5233",
-          light: "#3D6B42",
-        },
-        cream: {
-          DEFAULT: "#F5F1E8",
-          light: "#FEFEFE",
-          dark: "#EDE8DC",
-        },
-        honey: {
-          DEFAULT: "#D4A574",
-          light: "#E0BB92",
-          dark: "#C49460",
-        },
-        earth: {
-          DEFAULT: "#4A3F35",
-          light: "#6B5F56",
-          dark: "#3A3028",
-        },
-        stone: {
-          DEFAULT: "#7A6F6D",
+        bronze: {
+          DEFAULT: "hsl(30 30% 47%)",
         },
       },
       fontFamily: {

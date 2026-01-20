@@ -4,77 +4,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* The House of Earthmonk - Premium Cafe Design System */
+/* Dark Premium Restaurant Menu Theme */
 
 @layer base {
   :root {
-    /* Core Brand Colors */
-    --background: 40 33% 94%; /* Warm Cream #F5F1E8 */
-    --foreground: 26 29% 21%; /* Deep Brown #4A3F35 */
+    /* Dark Premium Color Palette */
+    --background: 0 0% 10%; /* #1A1A1A Very dark charcoal */
+    --foreground: 0 0% 100%; /* Pure white */
 
-    --card: 0 0% 100%; /* Soft White #FEFEFE */
-    --card-foreground: 26 29% 21%;
+    --card: 0 0% 14%; /* #242424 Slightly lighter dark grey */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 26 29% 21%;
+    --popover: 0 0% 14%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 18 51% 54%; /* Terracotta #C86F4B */
-    --primary-foreground: 0 0% 100%;
+    --primary: 30 47% 64%; /* Golden Honey #D4A574 */
+    --primary-foreground: 0 0% 10%;
 
-    --secondary: 114 17% 54%; /* Sage Green #7A9B76 */
+    --secondary: 30 30% 50%; /* Muted bronze #8B7355 */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 30 20% 90%;
-    --muted-foreground: 24 16% 40%; /* Text Secondary #6B5F56 */
+    --muted: 0 0% 18%; /* Dark grey for muted backgrounds */
+    --muted-foreground: 0 0% 72%; /* #B8B8B8 Light grey for descriptions */
 
-    --accent: 30 47% 64%; /* Golden Honey #D4A574 */
-    --accent-foreground: 26 29% 21%;
+    --accent: 35 45% 62%; /* Warm gold #C9A961 */
+    --accent-foreground: 0 0% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 15% 80%;
-    --input: 30 15% 85%;
-    --ring: 18 51% 54%;
+    --border: 0 0% 20%;
+    --input: 0 0% 18%;
+    --ring: 30 47% 64%;
 
     --radius: 0.75rem;
 
     /* Extended Brand Colors */
-    --forest: 130 27% 25%; /* Forest Green #2F5233 */
-    --stone: 10 6% 45%; /* Neutral Stone #7A6F6D */
-    --cream-light: 40 50% 97%;
+    --gold: 35 45% 62%; /* #C9A961 */
+    --gold-bright: 38 55% 68%; /* #E5C078 hover */
+    --bronze: 30 30% 47%; /* #8B7355 */
+    --stone: 0 0% 50%; /* #808080 */
     
-    /* Shadows */
-    --shadow-soft: 0 4px 20px rgba(74, 63, 53, 0.08);
-    --shadow-medium: 0 8px 30px rgba(74, 63, 53, 0.12);
-    --shadow-elevated: 0 12px 40px rgba(74, 63, 53, 0.16);
+    /* Shadows - Darker/more dramatic */
+    --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-medium: 0 12px 32px rgba(0, 0, 0, 0.5);
+    --shadow-elevated: 0 20px 48px rgba(0, 0, 0, 0.6);
     
     /* Gradients */
-    --gradient-cream: linear-gradient(180deg, hsl(40 33% 94%) 0%, hsl(40 50% 97%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 33% 96%) 100%);
-    --gradient-primary: linear-gradient(135deg, hsl(18 51% 54%) 0%, hsl(18 51% 44%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(114 17% 54%) 0%, hsl(130 27% 35%) 100%);
-    --gradient-overlay: linear-gradient(180deg, rgba(74, 63, 53, 0) 0%, rgba(74, 63, 53, 0.6) 100%);
-  }
-
-  .dark {
-    --background: 26 29% 8%;
-    --foreground: 40 33% 94%;
-    --card: 26 29% 12%;
-    --card-foreground: 40 33% 94%;
-    --popover: 26 29% 12%;
-    --popover-foreground: 40 33% 94%;
-    --primary: 18 51% 54%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 114 17% 54%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 26 20% 18%;
-    --muted-foreground: 30 15% 65%;
-    --accent: 30 47% 64%;
-    --accent-foreground: 26 29% 12%;
-    --border: 26 20% 20%;
-    --input: 26 20% 20%;
-    --ring: 18 51% 54%;
+    --gradient-overlay: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.85) 100%);
+    --gradient-card: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(30 47% 64%) 0%, hsl(35 45% 52%) 100%);
   }
 }
 
@@ -104,9 +83,9 @@
     @apply fixed inset-0 w-full h-full object-cover z-0;
   }
 
-  /* Category Cards */
+  /* Premium Category Cards - Dark Theme */
   .category-card {
-    @apply relative overflow-hidden rounded-2xl transition-all duration-400 ease-out;
+    @apply relative overflow-hidden rounded-xl transition-all duration-400 ease-out cursor-pointer;
     box-shadow: var(--shadow-soft);
   }
 
@@ -115,7 +94,35 @@
     box-shadow: var(--shadow-elevated);
   }
 
-  /* Menu Item Cards */
+  .category-card:hover .category-card-image {
+    transform: scale(1.05);
+    filter: brightness(0.8);
+  }
+
+  .category-card-image {
+    @apply absolute inset-0 w-full h-full object-cover transition-all duration-500;
+    filter: brightness(0.7) contrast(1.1) saturate(0.9);
+  }
+
+  .category-card-overlay {
+    @apply absolute inset-0;
+    background: var(--gradient-overlay);
+  }
+
+  /* Arrow Button - Premium Style */
+  .arrow-button {
+    @apply w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300;
+    background: rgba(139, 115, 85, 0.6);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .arrow-button:hover {
+    background: rgba(201, 169, 97, 0.9);
+    transform: scale(1.1);
+  }
+
+  /* Menu Item Cards - Dark Theme */
   .menu-card {
     @apply bg-card rounded-xl overflow-hidden transition-all duration-300;
     box-shadow: var(--shadow-soft);
@@ -123,61 +130,65 @@
 
   .menu-card:hover {
     box-shadow: var(--shadow-medium);
+    transform: translateY(-4px);
   }
 
   /* Premium Buttons */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-white transition-all duration-300;
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(18 51% 44%) 100%);
-    box-shadow: 0 4px 15px rgba(200, 111, 75, 0.3);
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(30 47% 54%) 100%);
+    color: hsl(0 0% 100%);
+    box-shadow: 0 4px 15px rgba(212, 165, 116, 0.3);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(200, 111, 75, 0.4);
+    box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium text-white transition-all duration-300;
-    background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(130 27% 35%) 100%);
-    box-shadow: 0 4px 15px rgba(122, 155, 118, 0.3);
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full font-medium transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(30 30% 40%) 100%);
+    color: hsl(0 0% 100%);
+    box-shadow: 0 4px 15px rgba(139, 115, 85, 0.3);
   }
 
   .btn-secondary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(122, 155, 118, 0.4);
+    box-shadow: 0 6px 20px rgba(139, 115, 85, 0.4);
   }
 
-  /* 3D Viewer Container */
+  /* 3D Viewer Container - Dark Theme */
   .model-viewer-container {
     @apply bg-card rounded-2xl overflow-hidden;
     box-shadow: var(--shadow-medium);
   }
 
-  /* Price Tag */
+  /* Price Tag - Gold */
   .price-tag {
-    @apply text-accent font-semibold;
+    @apply font-semibold;
+    color: hsl(var(--accent));
     font-family: 'Playfair Display', serif;
   }
 
   /* Veg Indicator */
   .veg-badge {
     @apply inline-flex items-center justify-center w-5 h-5 rounded border-2;
-    border-color: hsl(var(--forest));
+    border-color: hsl(130 40% 45%);
   }
 
   .veg-badge::before {
     content: '';
     @apply w-2.5 h-2.5 rounded-full;
-    background-color: hsl(var(--forest));
+    background-color: hsl(130 40% 45%);
   }
 
-  /* Loading Shimmer */
+  /* Loading Shimmer - Dark Theme */
   .shimmer {
     background: linear-gradient(
       90deg,
       hsl(var(--muted)) 0%,
-      hsl(40 33% 96%) 50%,
+      hsl(0 0% 22%) 50%,
       hsl(var(--muted)) 100%
     );
     background-size: 200% 100%;
@@ -189,9 +200,12 @@
     100% { background-position: -200% 0; }
   }
 
-  /* Botanical Decorations */
-  .botanical-accent {
-    @apply absolute pointer-events-none opacity-20;
+  /* Category Label */
+  .category-label {
+    @apply text-xs font-normal uppercase tracking-widest;
+    color: hsl(var(--accent));
+    opacity: 0.8;
+    letter-spacing: 3px;
   }
 }
 
@@ -206,6 +220,11 @@
 
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Gold text utility */
+  .text-gold {
+    color: hsl(var(--accent));
   }
 
   /* Fade animations */
