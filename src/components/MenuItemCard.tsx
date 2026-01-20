@@ -77,14 +77,6 @@ const MenuItemCard = ({ item, categorySlug, index }: MenuItemCardProps) => {
               View in AR
             </Link>
           )}
-          {!item.model3D && (
-            <Link
-              to={`/item/${categorySlug}/${item.slug}`}
-              className="btn-secondary flex-1 text-sm py-2.5"
-            >
-              View Details
-            </Link>
-          )}
         </div>
       </div>
     </div>
