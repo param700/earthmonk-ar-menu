@@ -1,7 +1,6 @@
 import { menuCategories } from "@/data/menuData";
 import Header from "@/components/Header";
 import CategoryCard from "@/components/CategoryCard";
-import { Leaf } from "lucide-react";
 
 const HomePage = () => {
   return (
@@ -9,35 +8,21 @@ const HomePage = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative py-8 md:py-12 px-4">
-        <div className="container mx-auto text-center">
-          {/* Decorative Leaf */}
-          <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 rounded-full bg-sage/10 flex items-center justify-center">
-              <Leaf className="w-6 h-6 text-sage" />
-            </div>
-          </div>
-
-          <h1 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mb-3">
+      <section className="relative py-16 md:py-20 px-4">
+        <div className="container mx-auto text-center max-w-3xl">
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-foreground mb-4 leading-tight">
             Our <span className="text-primary">Menu</span>
           </h1>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Explore our selection of vegetarian delights inspired by Italian, Thai, and Continental cuisines
+          <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-xl mx-auto">
+            Explore our curated selection of gourmet dishes, crafted with passion and premium ingredients
           </p>
-        </div>
-
-        {/* Botanical Decorations */}
-        <div className="absolute top-0 right-0 w-32 h-32 opacity-5 pointer-events-none">
-          <svg viewBox="0 0 100 100" fill="currentColor" className="text-forest w-full h-full">
-            <path d="M50 0 C60 20 80 30 100 50 C80 70 60 80 50 100 C40 80 20 70 0 50 C20 30 40 20 50 0" />
-          </svg>
         </div>
       </section>
 
       {/* Categories Grid */}
-      <section className="py-6 px-4 pb-12">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+      <section className="px-4 md:px-6 lg:px-10 pb-12">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {menuCategories.map((category, index) => (
               <CategoryCard 
                 key={category.id} 
@@ -49,26 +34,11 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-earth text-cream py-8 px-4">
-        <div className="container mx-auto text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-10 h-10 rounded-full bg-sage/20 flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-sage" />
-            </div>
-          </div>
-          <h3 className="font-display text-xl mb-2">The House of Earthmonk</h3>
-          <p className="text-cream/60 text-sm mb-4">
-            Nature's Kitchen • Anand & Vadodara
-          </p>
-          <div className="flex justify-center gap-6 text-sm text-cream/50">
-            <span>Italian</span>
-            <span>•</span>
-            <span>Thai</span>
-            <span>•</span>
-            <span>Continental</span>
-          </div>
-        </div>
+      {/* Footer Text */}
+      <footer className="py-10 px-4 text-center">
+        <p className="text-sm text-muted-foreground/60">
+          Tap any category to explore • View items in 3D & AR
+        </p>
       </footer>
     </div>
   );
