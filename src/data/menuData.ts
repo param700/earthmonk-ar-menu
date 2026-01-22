@@ -23,12 +23,38 @@ export interface Category {
   items: MenuItem[];
 }
 
+// Cloudinary paths for categories
+const CATEGORY_IMAGES = {
+  italian: "earthmonk/categories/italian",
+  thai: "earthmonk/categories/thai",
+  continental: "earthmonk/categories/continental",
+  beverages: "earthmonk/categories/beverages",
+  desserts: "earthmonk/categories/desserts",
+};
+
+// Cloudinary paths for menu items
+const MENU_IMAGES = {
+  margherita: "earthmonk/menu/margherita",
+  pastaAlfredo: "earthmonk/menu/pasta-alfredo",
+  bruschetta: "earthmonk/menu/bruschetta",
+  padThai: "earthmonk/menu/pad-thai",
+  greenCurry: "earthmonk/menu/green-curry",
+  tomYum: "earthmonk/menu/tom-yum",
+  grilledSandwich: "earthmonk/menu/grilled-sandwich",
+  caesarSalad: "earthmonk/menu/caesar-salad",
+  latte: "earthmonk/menu/latte",
+  mojito: "earthmonk/menu/mojito",
+  mangoSmoothie: "earthmonk/menu/mango-smoothie",
+  tiramisu: "earthmonk/menu/tiramisu",
+  chocolateLava: "earthmonk/menu/chocolate-lava",
+};
+
 export const menuCategories: Category[] = [
   {
     id: "italian",
     name: "Italian Cuisine",
     slug: "italian",
-    thumbnail: "/images/categories/italian.jpg",
+    thumbnail: CATEGORY_IMAGES.italian,
     description: "Authentic Italian flavors with a vegetarian twist",
     items: [
       {
@@ -38,7 +64,7 @@ export const menuCategories: Category[] = [
         price: 350,
         currency: "₹",
         description: "Classic Italian pizza with fresh basil, mozzarella cheese, and our signature tomato sauce on a perfectly crispy crust",
-        image: "/images/menu/margherita.jpg",
+        image: MENU_IMAGES.margherita,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Tomato Sauce", "Fresh Mozzarella", "Basil", "Olive Oil", "Oregano"],
         isVeg: true,
@@ -52,7 +78,7 @@ export const menuCategories: Category[] = [
         price: 320,
         currency: "₹",
         description: "Creamy fettuccine pasta with our rich homemade Alfredo sauce and fresh herbs",
-        image: "/images/menu/pasta-alfredo.jpg",
+        image: MENU_IMAGES.pastaAlfredo,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Fettuccine", "Cream", "Parmesan", "Garlic", "Herbs"],
         isVeg: true,
@@ -66,7 +92,7 @@ export const menuCategories: Category[] = [
         price: 220,
         currency: "₹",
         description: "Toasted artisan bread topped with fresh tomatoes, basil, and balsamic glaze",
-        image: "/images/menu/bruschetta.jpg",
+        image: MENU_IMAGES.bruschetta,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Artisan Bread", "Tomatoes", "Basil", "Balsamic", "Garlic"],
         isVeg: true,
@@ -79,7 +105,7 @@ export const menuCategories: Category[] = [
     id: "thai",
     name: "Thai Cuisine",
     slug: "thai",
-    thumbnail: "/images/categories/thai.jpg",
+    thumbnail: CATEGORY_IMAGES.thai,
     description: "Aromatic Thai dishes with authentic flavors",
     items: [
       {
@@ -89,7 +115,7 @@ export const menuCategories: Category[] = [
         price: 280,
         currency: "₹",
         description: "Stir-fried rice noodles with tofu, vegetables, crushed peanuts, and our signature tamarind sauce",
-        image: "/images/menu/pad-thai.jpg",
+        image: MENU_IMAGES.padThai,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Rice Noodles", "Tofu", "Bean Sprouts", "Peanuts", "Tamarind"],
         isVeg: true,
@@ -103,7 +129,7 @@ export const menuCategories: Category[] = [
         price: 300,
         currency: "₹",
         description: "Aromatic coconut curry with fresh vegetables and Thai basil",
-        image: "/images/menu/green-curry.jpg",
+        image: MENU_IMAGES.greenCurry,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Coconut Milk", "Green Curry Paste", "Vegetables", "Thai Basil"],
         isVeg: true,
@@ -117,7 +143,7 @@ export const menuCategories: Category[] = [
         price: 180,
         currency: "₹",
         description: "Hot and sour Thai soup with mushrooms, lemongrass, and galangal",
-        image: "/images/menu/tom-yum.jpg",
+        image: MENU_IMAGES.tomYum,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Lemongrass", "Galangal", "Mushrooms", "Lime", "Chili"],
         isVeg: true,
@@ -130,7 +156,7 @@ export const menuCategories: Category[] = [
     id: "continental",
     name: "Continental",
     slug: "continental",
-    thumbnail: "/images/categories/continental.jpg",
+    thumbnail: CATEGORY_IMAGES.continental,
     description: "Classic European dishes with modern presentation",
     items: [
       {
@@ -140,7 +166,7 @@ export const menuCategories: Category[] = [
         price: 220,
         currency: "₹",
         description: "Multigrain bread with grilled vegetables, cheese, and herb mayo",
-        image: "/images/menu/grilled-sandwich.jpg",
+        image: MENU_IMAGES.grilledSandwich,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Multigrain Bread", "Grilled Vegetables", "Cheese", "Herbs"],
         isVeg: true,
@@ -154,7 +180,7 @@ export const menuCategories: Category[] = [
         price: 260,
         currency: "₹",
         description: "Fresh romaine lettuce with caesar dressing, croutons, and parmesan",
-        image: "/images/menu/caesar-salad.jpg",
+        image: MENU_IMAGES.caesarSalad,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Romaine Lettuce", "Caesar Dressing", "Croutons", "Parmesan"],
         isVeg: true,
@@ -167,7 +193,7 @@ export const menuCategories: Category[] = [
     id: "beverages",
     name: "Beverages",
     slug: "beverages",
-    thumbnail: "/images/categories/beverages.jpg",
+    thumbnail: CATEGORY_IMAGES.beverages,
     description: "Refreshing drinks and specialty coffees",
     items: [
       {
@@ -177,7 +203,7 @@ export const menuCategories: Category[] = [
         price: 180,
         currency: "₹",
         description: "Our signature blend with notes of caramel and a hint of vanilla",
-        image: "/images/menu/latte.jpg",
+        image: MENU_IMAGES.latte,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Espresso", "Steamed Milk", "Caramel", "Vanilla"],
         isVeg: true,
@@ -191,7 +217,7 @@ export const menuCategories: Category[] = [
         price: 150,
         currency: "₹",
         description: "Refreshing mocktail with fresh mint, lime, and soda",
-        image: "/images/menu/mojito.jpg",
+        image: MENU_IMAGES.mojito,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Fresh Mint", "Lime", "Sugar", "Soda"],
         isVeg: true,
@@ -205,7 +231,7 @@ export const menuCategories: Category[] = [
         price: 160,
         currency: "₹",
         description: "Creamy mango smoothie with a hint of honey",
-        image: "/images/menu/mango-smoothie.jpg",
+        image: MENU_IMAGES.mangoSmoothie,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Fresh Mango", "Yogurt", "Honey", "Ice"],
         isVeg: true,
@@ -218,7 +244,7 @@ export const menuCategories: Category[] = [
     id: "desserts",
     name: "Desserts",
     slug: "desserts",
-    thumbnail: "/images/categories/desserts.jpg",
+    thumbnail: CATEGORY_IMAGES.desserts,
     description: "Sweet endings to your meal",
     items: [
       {
@@ -228,7 +254,7 @@ export const menuCategories: Category[] = [
         price: 280,
         currency: "₹",
         description: "Layers of coffee-soaked ladyfingers with mascarpone cream",
-        image: "/images/menu/tiramisu.jpg",
+        image: MENU_IMAGES.tiramisu,
         model3D: "/models/sample-dish.glb",
         ingredients: ["Mascarpone", "Coffee", "Ladyfingers", "Cocoa"],
         isVeg: true,
@@ -242,7 +268,7 @@ export const menuCategories: Category[] = [
         price: 260,
         currency: "₹",
         description: "Warm chocolate cake with a molten center, served with vanilla ice cream",
-        image: "/images/menu/chocolate-lava.jpg",
+        image: MENU_IMAGES.chocolateLava,
         ingredients: ["Dark Chocolate", "Butter", "Eggs", "Vanilla Ice Cream"],
         isVeg: true,
         isSpicy: false,
@@ -270,3 +296,6 @@ export const getAllItems = (): { category: Category; item: MenuItem }[] => {
   });
   return items;
 };
+
+// Cloudinary video path for intro
+export const INTRO_VIDEO_PATH = "earthmonk/videos/intro";

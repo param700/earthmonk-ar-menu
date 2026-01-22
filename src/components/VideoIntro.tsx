@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import earthmonkLogo from "@/assets/earthmonk-logo.png";
+import { getVideoUrl } from "@/lib/cloudinary";
 
 interface VideoIntroProps {
   videoSrc: string;
@@ -93,7 +94,7 @@ const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroPr
       <video
         ref={videoRef}
         className="video-fullscreen"
-        src={videoSrc}
+        src={videoSrc.startsWith("/") ? videoSrc : getVideoUrl(videoSrc)}
         muted
         playsInline
         preload="auto"

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Category } from "@/data/menuData";
 import { ArrowUpRight } from "lucide-react";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface CategoryCardProps {
   category: Category;
@@ -19,11 +20,14 @@ const CategoryCard = ({ category, index }: CategoryCardProps) => {
     >
       <div className="relative aspect-video md:h-[320px] overflow-hidden">
         {/* Background Image */}
-        <img
+        <OptimizedImage
           src={category.thumbnail}
           alt={category.name}
           className="category-card-image"
+          width={640}
+          height={320}
           loading="lazy"
+          showBlurPlaceholder={true}
         />
         
         {/* Dark Gradient Overlay */}

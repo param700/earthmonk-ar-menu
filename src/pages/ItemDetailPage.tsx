@@ -2,6 +2,7 @@ import { useParams, useSearchParams, Navigate, Link } from "react-router-dom";
 import { getItemBySlug, getCategoryBySlug } from "@/data/menuData";
 import Header from "@/components/Header";
 import ModelViewer from "@/components/ModelViewer";
+import OptimizedImage from "@/components/OptimizedImage";
 import { Flame, Star, Leaf, ChevronRight } from "lucide-react";
 
 const ItemDetailPage = () => {
@@ -51,10 +52,12 @@ const ItemDetailPage = () => {
         {!item.model3D && (
           <section className="container mx-auto px-4 mb-6">
             <div className="rounded-2xl overflow-hidden shadow-medium">
-              <img
+              <OptimizedImage
                 src={item.image}
                 alt={item.name}
-                className="w-full aspect-video object-cover"
+                className="w-full aspect-video"
+                width={800}
+                loading="eager"
               />
             </div>
           </section>
@@ -148,10 +151,11 @@ const ItemDetailPage = () => {
                   className="flex-shrink-0 w-40"
                 >
                   <div className="bg-card rounded-xl overflow-hidden shadow-soft hover:shadow-medium transition-shadow">
-                    <img
+                    <OptimizedImage
                       src={relatedItem.image}
                       alt={relatedItem.name}
-                      className="w-full aspect-square object-cover"
+                      className="w-full aspect-square"
+                      width={160}
                       loading="lazy"
                     />
                     <div className="p-3">
