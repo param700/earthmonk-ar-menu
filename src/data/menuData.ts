@@ -49,9 +49,13 @@ const MENU_IMAGES = {
   chocolateLava: "chocolate-lava_vyvmlg.jpg",
 };
 
-// Cloudinary paths for 3D models (must include .glb extension for raw files)
+// Cloudinary paths for 3D models (must include .glb extension)
 const MODEL_3D = {
   sampleDish: "output_bk3tev.glb",
+  margherita: "Margherita_Pizza_sokvjn.glb",
+  pastaAlfredo: "Pasta_Alfredo_y2ru7a.glb",
+  padThai: "Vegetable_Pad_Thai_yv7wmq.glb",
+  chocolateLava: "Chocolate_Lava_Cake_ryndhn.glb",
 };
 
 export const menuCategories: Category[] = [
@@ -70,7 +74,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Classic Italian pizza with fresh basil, mozzarella cheese, and our signature tomato sauce on a perfectly crispy crust",
         image: MENU_IMAGES.margherita,
-        model3D: MODEL_3D.sampleDish,
+        model3D: MODEL_3D.margherita,
         ingredients: ["Tomato Sauce", "Fresh Mozzarella", "Basil", "Olive Oil", "Oregano"],
         isVeg: true,
         isSpicy: false,
@@ -84,7 +88,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Creamy fettuccine pasta with our rich homemade Alfredo sauce and fresh herbs",
         image: MENU_IMAGES.pastaAlfredo,
-        model3D: MODEL_3D.sampleDish,
+        model3D: MODEL_3D.pastaAlfredo,
         ingredients: ["Fettuccine", "Cream", "Parmesan", "Garlic", "Herbs"],
         isVeg: true,
         isSpicy: false,
@@ -121,7 +125,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Stir-fried rice noodles with tofu, vegetables, crushed peanuts, and our signature tamarind sauce",
         image: MENU_IMAGES.padThai,
-        model3D: MODEL_3D.sampleDish,
+        model3D: MODEL_3D.padThai,
         ingredients: ["Rice Noodles", "Tofu", "Bean Sprouts", "Peanuts", "Tamarind"],
         isVeg: true,
         isSpicy: true,
@@ -274,6 +278,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Warm chocolate cake with a molten center, served with vanilla ice cream",
         image: MENU_IMAGES.chocolateLava,
+        model3D: MODEL_3D.chocolateLava,
         ingredients: ["Dark Chocolate", "Butter", "Eggs", "Vanilla Ice Cream"],
         isVeg: true,
         isSpicy: false,
