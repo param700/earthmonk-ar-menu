@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { RotateCcw, Move3D, Smartphone } from "lucide-react";
+import { getRawFileUrl } from "@/lib/cloudinary";
 
 // Extend Window type for model-viewer
 declare global {
@@ -39,6 +40,10 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
   const [isLoading, setIsLoading] = useState(true);
   const [arSupported, setArSupported] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
+
+  // Convert Public IDs to Cloudinary URLs
+  const modelUrl = getRawFileUrl(modelSrc);
+  const arUrl = arSrc ? getRawFileUrl(arSrc) : undefined;
 
   useEffect(() => {
     // Load model-viewer script
@@ -108,8 +113,8 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
       {/* Model Viewer */}
       <model-viewer
         ref={modelViewerRef}
-        src={modelSrc}
-        ios-src={arSrc}
+        src={modelUrl}
+        ios-src={arUrl}
         alt={`3D model of ${itemName}`}
         ar
         ar-modes="webxr scene-viewer quick-look"
