@@ -34,10 +34,10 @@ const CATEGORY_IMAGES = {
 
 // Cloudinary paths for menu items
 const MENU_IMAGES = {
-  margherita: "margherita_lazhuf.jpg",
-  pastaAlfredo: "pasta-alfredo_v1loz1.jpg",
+  margherita: "Margherita_Pizza_sokvjn",
+  pastaAlfredo: "Pasta_Alfredo_y2ru7a",
   bruschetta: "bruschetta_zf5wsf.jpg",
-  padThai: "pad-thai_jsicvm.jpg",
+  padThai: "Vegetable_Pad_Thai_yv7wmq",
   greenCurry: "green-curry_jnqyym.jpg",
   tomYum: "tom-yum_hj9fkn.jpg",
   grilledSandwich: "grilled-sandwich_hwabv7.jpg",
@@ -46,16 +46,12 @@ const MENU_IMAGES = {
   mojito: "mojito_ohemoj.jpg",
   mangoSmoothie: "mango-smoothie_enxzrz.jpg",
   tiramisu: "tiramisu_ujrrfs.jpg",
-  chocolateLava: "chocolate-lava_vyvmlg.jpg",
+  chocolateLava: "Chocolate_Lava_Cake_ryndhn",
 };
 
 // Cloudinary paths for 3D models (must include .glb extension)
 const MODEL_3D = {
   sampleDish: "output_bk3tev.glb",
-  margherita: "Margherita_Pizza_sokvjn.glb",
-  pastaAlfredo: "Pasta_Alfredo_y2ru7a.glb",
-  padThai: "Vegetable_Pad_Thai_yv7wmq.glb",
-  chocolateLava: "Chocolate_Lava_Cake_ryndhn.glb",
 };
 
 export const menuCategories: Category[] = [
@@ -74,7 +70,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Classic Italian pizza with fresh basil, mozzarella cheese, and our signature tomato sauce on a perfectly crispy crust",
         image: MENU_IMAGES.margherita,
-        model3D: MODEL_3D.margherita,
+        model3D: MODEL_3D.sampleDish,
         ingredients: ["Tomato Sauce", "Fresh Mozzarella", "Basil", "Olive Oil", "Oregano"],
         isVeg: true,
         isSpicy: false,
@@ -88,7 +84,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Creamy fettuccine pasta with our rich homemade Alfredo sauce and fresh herbs",
         image: MENU_IMAGES.pastaAlfredo,
-        model3D: MODEL_3D.pastaAlfredo,
+        model3D: MODEL_3D.sampleDish,
         ingredients: ["Fettuccine", "Cream", "Parmesan", "Garlic", "Herbs"],
         isVeg: true,
         isSpicy: false,
@@ -125,7 +121,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Stir-fried rice noodles with tofu, vegetables, crushed peanuts, and our signature tamarind sauce",
         image: MENU_IMAGES.padThai,
-        model3D: MODEL_3D.padThai,
+        model3D: MODEL_3D.sampleDish,
         ingredients: ["Rice Noodles", "Tofu", "Bean Sprouts", "Peanuts", "Tamarind"],
         isVeg: true,
         isSpicy: true,
@@ -278,7 +274,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Warm chocolate cake with a molten center, served with vanilla ice cream",
         image: MENU_IMAGES.chocolateLava,
-        model3D: MODEL_3D.chocolateLava,
+        model3D: MODEL_3D.sampleDish,
         ingredients: ["Dark Chocolate", "Butter", "Eggs", "Vanilla Ice Cream"],
         isVeg: true,
         isSpicy: false,
