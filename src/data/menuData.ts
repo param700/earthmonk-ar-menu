@@ -49,9 +49,9 @@ const MENU_IMAGES = {
   chocolateLava: "chocolate-lava_vyvmlg.jpg",
 };
 
-// Cloudinary paths for 3D models
+// Cloudinary paths for 3D models (must include .glb extension for raw files)
 const MODEL_3D = {
-  sampleDish: "output_bk3tev",
+  sampleDish: "output_bk3tev.glb",
 };
 
 export const menuCategories: Category[] = [
