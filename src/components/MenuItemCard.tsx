@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { MenuItem } from "@/data/menuData";
 import { Flame, Star, Eye, Box } from "lucide-react";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -16,11 +17,13 @@ const MenuItemCard = ({ item, categorySlug, index }: MenuItemCardProps) => {
     >
       {/* Image Section */}
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
+        <OptimizedImage
           src={item.image}
           alt={item.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full"
+          width={400}
           loading="lazy"
+          showBlurPlaceholder={true}
         />
         
         {/* Badges */}
