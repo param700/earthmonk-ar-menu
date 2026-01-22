@@ -82,10 +82,10 @@ export const getBlurPlaceholder = (path: string): string => {
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_50,q_auto:low,f_auto,e_blur:1000/${path}`;
 };
 
-// Generate URL for raw files (GLB, USDZ, etc.)
+// Generate URL for 3D files (GLB, USDZ, etc.) uploaded as image type
 export const getRawFileUrl = (publicId: string): string => {
   if (publicId.startsWith("http") || publicId.startsWith("/")) {
     return publicId;
   }
-  return `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/${publicId}`;
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${publicId}`;
 };
