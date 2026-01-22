@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import ModelViewer from "@/components/ModelViewer";
 import OptimizedImage from "@/components/OptimizedImage";
 import { Flame, Star, Leaf, ChevronRight } from "lucide-react";
+import { getImageUrl } from "@/lib/cloudinary";
 
 const ItemDetailPage = () => {
   const { categorySlug, itemSlug } = useParams<{ categorySlug: string; itemSlug: string }>();
@@ -42,7 +43,7 @@ const ItemDetailPage = () => {
               modelSrc={item.model3D}
               arSrc={item.modelAR}
               itemName={item.name}
-              posterImage={item.image}
+              posterImage={getImageUrl(item.image, { width: 800 })}
               startInAr={startInAr}
             />
           </section>
