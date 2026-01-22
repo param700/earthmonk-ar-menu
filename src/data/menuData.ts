@@ -25,28 +25,28 @@ export interface Category {
 
 // Cloudinary paths for categories
 const CATEGORY_IMAGES = {
-  italian: "earthmonk/categories/italian",
-  thai: "earthmonk/categories/thai",
-  continental: "earthmonk/categories/continental",
-  beverages: "earthmonk/categories/beverages",
-  desserts: "earthmonk/categories/desserts",
+  italian: "italian_uazwiy.jpg",
+  thai: "thai_zemzpw.jpg",
+  continental: "continental_f9fjpo.jpg",
+  beverages: "beverages_f4fvnu.jpg",
+  desserts: "desserts_thrr0i.jpg",
 };
 
 // Cloudinary paths for menu items
 const MENU_IMAGES = {
-  margherita: "earthmonk/menu/margherita",
-  pastaAlfredo: "earthmonk/menu/pasta-alfredo",
-  bruschetta: "earthmonk/menu/bruschetta",
-  padThai: "earthmonk/menu/pad-thai",
-  greenCurry: "earthmonk/menu/green-curry",
-  tomYum: "earthmonk/menu/tom-yum",
-  grilledSandwich: "earthmonk/menu/grilled-sandwich",
-  caesarSalad: "earthmonk/menu/caesar-salad",
-  latte: "earthmonk/menu/latte",
-  mojito: "earthmonk/menu/mojito",
-  mangoSmoothie: "earthmonk/menu/mango-smoothie",
-  tiramisu: "earthmonk/menu/tiramisu",
-  chocolateLava: "earthmonk/menu/chocolate-lava",
+  margherita: "margherita_lazhuf.jpg",
+  pastaAlfredo: "pasta-alfredo_v1loz1.jpg",
+  bruschetta: "bruschetta_zf5wsf.jpg",
+  padThai: "pad-thai_jsicvm.jpg",
+  greenCurry: "green-curry_jnqyym.jpg",
+  tomYum: "tom-yum_hj9fkn.jpg",
+  grilledSandwich: "grilled-sandwich_hwabv7.jpg",
+  caesarSalad: "caesar-salad_idqw3v.jpg",
+  latte: "latte_gobzwx.jpg",
+  mojito: "mojito_ohemoj.jpg",
+  mangoSmoothie: "mango-smoothie_enxzrz.jpg",
+  tiramisu: "tiramisu_ujrrfs.jpg",
+  chocolateLava: "chocolate-lava_vyvmlg.jpg",
 };
 
 export const menuCategories: Category[] = [
@@ -298,4 +298,4 @@ export const getAllItems = (): { category: Category; item: MenuItem }[] => {
 };
 
 // Cloudinary video path for intro
-export const INTRO_VIDEO_PATH = "earthmonk/videos/intro";
+export const INTRO_VIDEO_PATH = "earthmonk-intro_oucm79.mp4";
