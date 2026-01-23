@@ -123,7 +123,7 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
         ios-src={arUrl}
         alt={`3D model of ${itemName}`}
         ar
-        ar-modes="webxr scene-viewer quick-look"
+        ar-modes="scene-viewer webxr quick-look"
         ar-scale="auto"
         ar-placement="floor"
         xr-environment
