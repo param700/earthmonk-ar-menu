@@ -13,6 +13,9 @@ declare global {
           alt?: string;
           ar?: boolean;
           'ar-modes'?: string;
+          'ar-scale'?: 'auto' | 'fixed';
+          'ar-placement'?: 'floor' | 'wall';
+          'xr-environment'?: boolean;
           'camera-controls'?: boolean;
           'auto-rotate'?: boolean;
           'shadow-intensity'?: string;
@@ -20,6 +23,9 @@ declare global {
           'environment-image'?: string;
           loading?: 'auto' | 'lazy' | 'eager';
           poster?: string;
+          'interaction-prompt'?: 'auto' | 'none';
+          'interaction-prompt-style'?: 'wiggle' | 'basic';
+          'touch-action'?: string;
         },
         HTMLElement
       >;
@@ -118,12 +124,18 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
         alt={`3D model of ${itemName}`}
         ar
         ar-modes="webxr scene-viewer quick-look"
+        ar-scale="auto"
+        ar-placement="floor"
+        xr-environment
         camera-controls
         auto-rotate={autoRotate}
         shadow-intensity="1"
         exposure="0.8"
         loading="eager"
         poster={posterImage}
+        interaction-prompt="auto"
+        interaction-prompt-style="wiggle"
+        touch-action="pan-y"
         style={{
           width: '100%',
           height: '400px',
