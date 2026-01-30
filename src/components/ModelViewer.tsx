@@ -56,6 +56,28 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
   const initialScale = useRef<number>(1);
   const initialRotation = useRef<number>(0);
 
+  // Target values (what we're moving toward)
+  const targetScale = useRef<number>(1);
+  const targetRotation = useRef<number>(0);
+  const targetPositionX = useRef<number>(0);
+  const targetPositionZ = useRef<number>(0);
+
+  // Current values (what's applied to the model)
+  const currentScale = useRef<number>(1);
+  const currentRotation = useRef<number>(0);
+  const currentPositionX = useRef<number>(0);
+  const currentPositionZ = useRef<number>(0);
+
+  // Single finger drag tracking
+  const singleTouchStart = useRef<{ x: number; y: number } | null>(null);
+  const initialPositionX = useRef<number>(0);
+  const initialPositionZ = useRef<number>(0);
+
+  // Lerp function for smooth interpolation
+  const lerp = (current: number, target: number, factor: number): number => {
+    return current + (target - current) * factor;
+  };
+
   // Convert Public IDs to Cloudinary URLs
   const modelUrl = getRawFileUrl(modelSrc);
   const arUrl = arSrc ? getRawFileUrl(arSrc) : undefined;
@@ -76,36 +98,42 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
 
   // Touch event handlers
   const handleTouchStart = useCallback((e: TouchEvent) => {
-    if (e.touches.length === 2) {
+    if (e.touches.length === 1) {
+      // Single finger - prepare for drag
+      singleTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      initialPositionX.current = targetPositionX.current;
+      initialPositionZ.current = targetPositionZ.current;
+    } else if (e.touches.length === 2) {
+      // Two fingers - prepare for pinch/rotate
+      singleTouchStart.current = null; // Cancel drag
       touchStartDistance.current = getTouchDistance(e.touches);
       touchStartAngle.current = getTouchAngle(e.touches);
-      const modelViewer = modelViewerRef.current as any;
-      if (modelViewer) {
-        const currentScale = modelViewer.scale?.split(' ')[0];
-        initialScale.current = currentScale ? parseFloat(currentScale) : 1;
-        const orientation = modelViewer.orientation?.split(' ') || ['0deg', '0deg', '0deg'];
-        initialRotation.current = parseFloat(orientation[1]) || 0;
-      }
+      initialScale.current = targetScale.current;
+      initialRotation.current = targetRotation.current;
     }
   }, [getTouchDistance, getTouchAngle]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (e.touches.length === 2 && isInAR) {
-      e.preventDefault();
-      const modelViewer = modelViewerRef.current as any;
-      if (!modelViewer) return;
+    if (!isInAR) return;
+    e.preventDefault();
 
-      // Pinch to scale
+    if (e.touches.length === 1 && singleTouchStart.current) {
+      // Single finger drag - move model
+      const dragSensitivity = 0.005;
+      const deltaX = (e.touches[0].clientX - singleTouchStart.current.x) * dragSensitivity;
+      const deltaZ = (e.touches[0].clientY - singleTouchStart.current.y) * dragSensitivity;
+
+      targetPositionX.current = initialPositionX.current + deltaX;
+      targetPositionZ.current = initialPositionZ.current + deltaZ;
+    } else if (e.touches.length === 2) {
+      // Two finger pinch + rotate
       const currentDistance = getTouchDistance(e.touches);
       const scaleRatio = currentDistance / touchStartDistance.current;
-      const newScale = Math.max(0.1, Math.min(3, initialScale.current * scaleRatio));
-      modelViewer.scale = `${newScale} ${newScale} ${newScale}`;
+      targetScale.current = Math.max(0.1, Math.min(3, initialScale.current * scaleRatio));
 
-      // Two-finger rotate
       const currentAngle = getTouchAngle(e.touches);
-      const angleDelta = currentAngle - touchStartAngle.current;
-      const newRotation = initialRotation.current + angleDelta;
-      modelViewer.orientation = `0deg ${newRotation}deg 0deg`;
+      const angleDelta = (currentAngle - touchStartAngle.current) * 0.5; // Reduced sensitivity
+      targetRotation.current = initialRotation.current + angleDelta;
     }
   }, [isInAR, getTouchDistance, getTouchAngle]);
 
@@ -177,6 +205,45 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
     };
   }, [isInAR, handleTouchStart, handleTouchMove]);
 
+  // Smooth animation loop for AR gestures
+  useEffect(() => {
+    if (!isInAR) return;
+
+    let animationId: number;
+    const smoothingFactor = 0.15;
+
+    const animate = () => {
+      const modelViewer = modelViewerRef.current as any;
+      if (!modelViewer) {
+        animationId = requestAnimationFrame(animate);
+        return;
+      }
+
+      // Smooth scale
+      currentScale.current = lerp(currentScale.current, targetScale.current, smoothingFactor);
+      modelViewer.scale = `${currentScale.current} ${currentScale.current} ${currentScale.current}`;
+
+      // Smooth rotation
+      currentRotation.current = lerp(currentRotation.current, targetRotation.current, smoothingFactor);
+      modelViewer.orientation = `0deg ${currentRotation.current}deg 0deg`;
+
+      // Smooth position (Note: position affects local transform in WebXR)
+      currentPositionX.current = lerp(currentPositionX.current, targetPositionX.current, smoothingFactor);
+      currentPositionZ.current = lerp(currentPositionZ.current, targetPositionZ.current, smoothingFactor);
+      
+      // Apply position offset via CSS transform on the model
+      const modelElement = modelViewer.querySelector('#default');
+      if (modelElement) {
+        modelElement.style.transform = `translate3d(${currentPositionX.current}m, 0, ${currentPositionZ.current}m)`;
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, [isInAR]);
+
   const handleResetView = () => {
     const modelViewer = modelViewerRef.current as any;
     if (modelViewer) {
@@ -209,6 +276,8 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
       {/* AR Gesture Hint */}
       {showGestureHint && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-black/80 text-white px-5 py-3 rounded-full text-sm z-50 animate-fade-in backdrop-blur-sm">
+          <span className="font-medium">Drag to move</span>
+          <span className="mx-2 opacity-50">•</span>
           <span className="font-medium">Pinch to scale</span>
           <span className="mx-2 opacity-50">•</span>
           <span className="font-medium">Two fingers to rotate</span>
