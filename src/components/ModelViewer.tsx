@@ -73,6 +73,9 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
   const initialPositionX = useRef<number>(0);
   const initialPositionZ = useRef<number>(0);
 
+  // Threshold to prevent constant property updates (causes black model)
+  const CHANGE_THRESHOLD = 0.001;
+
   // Lerp function for smooth interpolation
   const lerp = (current: number, target: number, factor: number): number => {
     return current + (target - current) * factor;
@@ -118,8 +121,8 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
     e.preventDefault();
 
     if (e.touches.length === 1 && singleTouchStart.current) {
-      // Single finger drag - move model
-      const dragSensitivity = 0.005;
+      // Single finger drag - move model (increased sensitivity for smoother feel)
+      const dragSensitivity = 0.01;
       const deltaX = (e.touches[0].clientX - singleTouchStart.current.x) * dragSensitivity;
       const deltaZ = (e.touches[0].clientY - singleTouchStart.current.y) * dragSensitivity;
 
@@ -177,8 +180,24 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
       
       if (inAR) {
         setShowGestureHint(true);
-        // Hide hint after 4 seconds
         setTimeout(() => setShowGestureHint(false), 4000);
+      } else {
+        // Exiting AR - reset all gesture state to prevent stale values
+        targetScale.current = 1;
+        targetRotation.current = 0;
+        currentScale.current = 1;
+        currentRotation.current = 0;
+        targetPositionX.current = 0;
+        targetPositionZ.current = 0;
+        currentPositionX.current = 0;
+        currentPositionZ.current = 0;
+        
+        // Reset model to default state
+        const mv = modelViewerRef.current as any;
+        if (mv) {
+          mv.scale = '1 1 1';
+          mv.orientation = '0deg 0deg 0deg';
+        }
       }
     };
 
@@ -210,7 +229,7 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
     if (!isInAR) return;
 
     let animationId: number;
-    const smoothingFactor = 0.15;
+    const smoothingFactor = 0.2; // Increased for faster, more fluid interpolation
 
     const animate = () => {
       const modelViewer = modelViewerRef.current as any;
@@ -219,23 +238,23 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
         return;
       }
 
-      // Smooth scale
-      currentScale.current = lerp(currentScale.current, targetScale.current, smoothingFactor);
-      modelViewer.scale = `${currentScale.current} ${currentScale.current} ${currentScale.current}`;
+      // Smooth scale - only update if changed significantly (prevents black model)
+      const newScale = lerp(currentScale.current, targetScale.current, smoothingFactor);
+      if (Math.abs(newScale - currentScale.current) > CHANGE_THRESHOLD) {
+        currentScale.current = newScale;
+        modelViewer.scale = `${newScale} ${newScale} ${newScale}`;
+      }
 
-      // Smooth rotation
-      currentRotation.current = lerp(currentRotation.current, targetRotation.current, smoothingFactor);
-      modelViewer.orientation = `0deg ${currentRotation.current}deg 0deg`;
+      // Smooth rotation - only update if changed significantly
+      const newRotation = lerp(currentRotation.current, targetRotation.current, smoothingFactor);
+      if (Math.abs(newRotation - currentRotation.current) > CHANGE_THRESHOLD) {
+        currentRotation.current = newRotation;
+        modelViewer.orientation = `0deg ${newRotation}deg 0deg`;
+      }
 
-      // Smooth position (Note: position affects local transform in WebXR)
+      // Smooth position (tracked but not applied via CSS - WebXR limitation)
       currentPositionX.current = lerp(currentPositionX.current, targetPositionX.current, smoothingFactor);
       currentPositionZ.current = lerp(currentPositionZ.current, targetPositionZ.current, smoothingFactor);
-      
-      // Apply position offset via CSS transform on the model
-      const modelElement = modelViewer.querySelector('#default');
-      if (modelElement) {
-        modelElement.style.transform = `translate3d(${currentPositionX.current}m, 0, ${currentPositionZ.current}m)`;
-      }
 
       animationId = requestAnimationFrame(animate);
     };
