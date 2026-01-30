@@ -1,216 +1,186 @@
 
 
-# Improve AR Gesture Controls: Smooth Drag, Move & Rotate
+# Fix AR Model Blackening & Improve Single-Finger Smoothness
 
-## Problem
+## Problem Analysis
 
-The current AR implementation has these issues:
-- **No drag-to-move**: Cannot reposition the 3D model by dragging with one finger
-- **Jerky gestures**: Scale and rotate changes are applied instantly without smoothing
-- **Rotation too sensitive**: Two-finger rotate is hard to control
+### Issue 1: Model Turns Black After ~1 Second
+The animation loop continuously sets `modelViewer.scale` and `modelViewer.orientation` every frame, even when values haven't changed. This constant property mutation can:
+- Interfere with model-viewer's internal lighting recalculation
+- Break the WebXR lighting estimation from `xr-environment`
+- Cause the rendering pipeline to lose the environment map
+
+**Root cause**: Setting `orientation` and `scale` every frame, even when unchanged.
+
+### Issue 2: Single-Finger Drag Not Smooth Enough
+Current settings:
+- `dragSensitivity = 0.005` (too low - feels sluggish)
+- `smoothingFactor = 0.15` (may need adjustment)
+- Position applied via `translate3d` CSS which doesn't work in WebXR context
+
+---
 
 ## Solution
 
-Add single-finger drag to move the model, and apply smooth interpolation (lerp) to all gestures for fluid, natural-feeling interactions.
+### Fix 1: Only Update Properties When Changed (Prevents Blackening)
 
----
-
-## Changes to `src/components/ModelViewer.tsx`
-
-### 1. Add Drag-to-Move with Single Finger
-
-Track single-finger touch to move the model's position in X/Z space (left-right and forward-backward on the floor):
+Add a threshold check to avoid updating properties when changes are negligible:
 
 ```text
-New state/refs:
-- touchStartPosition (for single finger drag start)
-- initialModelPosition (starting position when drag begins)
-- targetScale, targetRotation, targetPosition (smooth targets)
-- currentScale, currentRotation, currentPosition (actual applied values)
+Before: Set scale/orientation every frame unconditionally
+After:  Only set if change exceeds threshold (e.g., 0.001)
 ```
 
-### 2. Add Smooth Interpolation (Lerp)
+This prevents constant property mutation that confuses model-viewer's renderer.
 
-Instead of applying gesture values directly, update "target" values and use `requestAnimationFrame` to smoothly interpolate toward them:
+### Fix 2: Increase Drag Sensitivity & Smoothing
+
+Adjust tuning parameters for better feel:
 
 ```text
-Lerp formula:
-current = current + (target - current) * smoothingFactor
-
-Where smoothingFactor = 0.15 (adjustable for feel)
+dragSensitivity: 0.005 → 0.01 (2x more responsive)
+smoothingFactor: 0.15 → 0.2 (faster interpolation)
 ```
 
-This creates smooth, natural-feeling gestures instead of jerky instant changes.
+### Fix 3: Reset State on AR Exit
 
-### 3. Reduce Rotation Sensitivity
-
-Apply a sensitivity multiplier to make rotation easier to control:
+When leaving AR, reset all target/current values to prevent stale state:
 
 ```text
-Before: angleDelta applied directly
-After:  angleDelta * 0.5 (half speed for easier control)
-```
-
-### 4. Updated Gesture Flow
-
-```text
-Single-finger touch:
-  - touchstart: Record start position and model position
-  - touchmove: Calculate drag delta, update target position
-
-Two-finger touch:
-  - touchstart: Record distance and angle
-  - touchmove: Calculate pinch ratio → update target scale
-               Calculate angle delta → update target rotation (with 0.5x sensitivity)
-
-Animation loop:
-  - requestAnimationFrame runs continuously
-  - Lerps current values toward target values
-  - Applies smoothed values to model-viewer
+On AR exit:
+- Reset targetScale, currentScale to 1
+- Reset targetRotation, currentRotation to 0
+- Reset position values to 0
 ```
 
 ---
 
-## Technical Implementation
+## Implementation Details
 
-### New Refs for Smooth Animation
+### File: `src/components/ModelViewer.tsx`
+
+#### 1. Add Threshold Constant
 
 ```typescript
-// Target values (what we're moving toward)
-const targetScale = useRef<number>(1);
-const targetRotation = useRef<number>(0);
-const targetPositionX = useRef<number>(0);
-const targetPositionZ = useRef<number>(0);
-
-// Current values (what's applied to the model)
-const currentScale = useRef<number>(1);
-const currentRotation = useRef<number>(0);
-const currentPositionX = useRef<number>(0);
-const currentPositionZ = useRef<number>(0);
-
-// Single finger drag tracking
-const singleTouchStart = useRef<{ x: number; y: number } | null>(null);
-const initialPositionX = useRef<number>(0);
-const initialPositionZ = useRef<number>(0);
+const CHANGE_THRESHOLD = 0.001;
 ```
 
-### Lerp Function
+#### 2. Update Animation Loop to Only Apply Changes When Needed
 
 ```typescript
-const lerp = (current: number, target: number, factor: number): number => {
-  return current + (target - current) * factor;
+const animate = () => {
+  const modelViewer = modelViewerRef.current as any;
+  if (!modelViewer) {
+    animationId = requestAnimationFrame(animate);
+    return;
+  }
+
+  // Smooth scale - only update if changed significantly
+  const newScale = lerp(currentScale.current, targetScale.current, smoothingFactor);
+  if (Math.abs(newScale - currentScale.current) > CHANGE_THRESHOLD) {
+    currentScale.current = newScale;
+    modelViewer.scale = `${newScale} ${newScale} ${newScale}`;
+  }
+
+  // Smooth rotation - only update if changed significantly
+  const newRotation = lerp(currentRotation.current, targetRotation.current, smoothingFactor);
+  if (Math.abs(newRotation - currentRotation.current) > CHANGE_THRESHOLD) {
+    currentRotation.current = newRotation;
+    modelViewer.orientation = `0deg ${newRotation}deg 0deg`;
+  }
+
+  animationId = requestAnimationFrame(animate);
 };
 ```
 
-### Animation Loop
+This prevents constant property updates that cause the black model issue.
+
+#### 3. Increase Drag Sensitivity & Smoothing Factor
 
 ```typescript
-useEffect(() => {
-  if (!isInAR) return;
+// In handleTouchMove - increase drag sensitivity
+const dragSensitivity = 0.01; // Was 0.005
+
+// In animation loop - increase smoothing factor
+const smoothingFactor = 0.2; // Was 0.15
+```
+
+#### 4. Reset State on AR Exit
+
+Update the `handleArStatus` function:
+
+```typescript
+const handleArStatus = (event: any) => {
+  const status = event.detail.status;
+  const inAR = status === 'session-started';
+  setIsInAR(inAR);
   
-  let animationId: number;
-  const smoothingFactor = 0.15;
-  
-  const animate = () => {
+  if (inAR) {
+    // Entering AR - show hint
+    setShowGestureHint(true);
+    setTimeout(() => setShowGestureHint(false), 4000);
+  } else {
+    // Exiting AR - reset all gesture state
+    targetScale.current = 1;
+    targetRotation.current = 0;
+    currentScale.current = 1;
+    currentRotation.current = 0;
+    targetPositionX.current = 0;
+    targetPositionZ.current = 0;
+    currentPositionX.current = 0;
+    currentPositionZ.current = 0;
+    
+    // Reset model to default state
     const modelViewer = modelViewerRef.current as any;
-    if (!modelViewer) {
-      animationId = requestAnimationFrame(animate);
-      return;
+    if (modelViewer) {
+      modelViewer.scale = '1 1 1';
+      modelViewer.orientation = '0deg 0deg 0deg';
     }
-    
-    // Smooth scale
-    currentScale.current = lerp(currentScale.current, targetScale.current, smoothingFactor);
-    modelViewer.scale = `${currentScale.current} ${currentScale.current} ${currentScale.current}`;
-    
-    // Smooth rotation
-    currentRotation.current = lerp(currentRotation.current, targetRotation.current, smoothingFactor);
-    modelViewer.orientation = `0deg ${currentRotation.current}deg 0deg`;
-    
-    animationId = requestAnimationFrame(animate);
-  };
-  
-  animationId = requestAnimationFrame(animate);
-  return () => cancelAnimationFrame(animationId);
-}, [isInAR]);
+  }
+};
 ```
 
-### Updated Touch Handlers
+#### 5. Remove Position CSS Transform (Not Effective in WebXR)
+
+Remove the position-related code from the animation loop since CSS transforms don't affect the 3D model in WebXR:
 
 ```typescript
-const handleTouchStart = useCallback((e: TouchEvent) => {
-  if (e.touches.length === 1) {
-    // Single finger - prepare for drag
-    singleTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    initialPositionX.current = targetPositionX.current;
-    initialPositionZ.current = targetPositionZ.current;
-  } else if (e.touches.length === 2) {
-    // Two fingers - prepare for pinch/rotate
-    singleTouchStart.current = null; // Cancel drag
-    touchStartDistance.current = getTouchDistance(e.touches);
-    touchStartAngle.current = getTouchAngle(e.touches);
-    initialScale.current = targetScale.current;
-    initialRotation.current = targetRotation.current;
-  }
-}, [getTouchDistance, getTouchAngle]);
-
-const handleTouchMove = useCallback((e: TouchEvent) => {
-  if (!isInAR) return;
-  e.preventDefault();
-  
-  if (e.touches.length === 1 && singleTouchStart.current) {
-    // Single finger drag - move model
-    const dragSensitivity = 0.005;
-    const deltaX = (e.touches[0].clientX - singleTouchStart.current.x) * dragSensitivity;
-    const deltaZ = (e.touches[0].clientY - singleTouchStart.current.y) * dragSensitivity;
-    
-    targetPositionX.current = initialPositionX.current + deltaX;
-    targetPositionZ.current = initialPositionZ.current + deltaZ;
-  } else if (e.touches.length === 2) {
-    // Two finger pinch + rotate
-    const currentDistance = getTouchDistance(e.touches);
-    const scaleRatio = currentDistance / touchStartDistance.current;
-    targetScale.current = Math.max(0.1, Math.min(3, initialScale.current * scaleRatio));
-    
-    const currentAngle = getTouchAngle(e.touches);
-    const angleDelta = (currentAngle - touchStartAngle.current) * 0.5; // Reduced sensitivity
-    targetRotation.current = initialRotation.current + angleDelta;
-  }
-}, [isInAR, getTouchDistance, getTouchAngle]);
+// REMOVE this block from animate():
+// const modelElement = modelViewer.querySelector('#default');
+// if (modelElement) {
+//   modelElement.style.transform = `translate3d(...)`;
+// }
 ```
 
-### Updated Gesture Hint
-
-```typescript
-{showGestureHint && (
-  <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-black/80 text-white px-5 py-3 rounded-full text-sm z-50 animate-fade-in backdrop-blur-sm">
-    <span className="font-medium">Drag to move</span>
-    <span className="mx-2 opacity-50">•</span>
-    <span className="font-medium">Pinch to scale</span>
-    <span className="mx-2 opacity-50">•</span>
-    <span className="font-medium">Two fingers to rotate</span>
-  </div>
-)}
-```
+For position, we'll keep the logic but note that moving objects in WebXR requires more complex XR space manipulation that model-viewer doesn't expose easily.
 
 ---
 
 ## Summary of Changes
 
-| Feature | Before | After |
-|---------|--------|-------|
-| Drag to move | Not available | Single-finger drag moves model in X/Z |
-| Scale smoothness | Instant/jerky | Smooth lerp interpolation |
-| Rotate smoothness | Instant/jerky | Smooth lerp interpolation |
-| Rotate sensitivity | 1:1 (hard to control) | 0.5x (easier control) |
-| Gesture hint | 2 gestures | 3 gestures (drag, pinch, rotate) |
+| Change | Purpose |
+|--------|---------|
+| Add `CHANGE_THRESHOLD` check | Prevent continuous property updates causing black model |
+| Increase `dragSensitivity` to 0.01 | Make single-finger drag more responsive |
+| Increase `smoothingFactor` to 0.2 | Faster, more fluid interpolation |
+| Reset state on AR exit | Clean state for next AR session |
+| Remove CSS transform for position | Remove ineffective WebXR positioning code |
+
+---
+
+## Expected Results
+
+1. **No more black model**: Threshold check prevents constant property mutation
+2. **Smoother single-finger drag**: Higher sensitivity + smoothing = better feel
+3. **Clean AR sessions**: State resets properly between AR uses
 
 ---
 
 ## Important Notes
 
-1. **WebXR Limitations**: Moving the model in WebXR affects its local transform, not its world position. This works for visual repositioning but doesn't change where the model is anchored in AR space.
+1. **Position Limitation**: Single-finger drag to move is limited in WebXR. The model can only be visually offset but not truly repositioned in AR space without deeper XR integration.
 
-2. **Smoothing Factor**: Set to 0.15 for balanced responsiveness. Can be adjusted (higher = faster, lower = smoother).
+2. **Tuning Values**: The sensitivity (0.01) and smoothing (0.2) can be further adjusted based on testing feedback.
 
-3. **Touch Conflict**: When second finger touches, single-finger drag is cancelled to prevent conflicts.
+3. **Black Model Root Cause**: The fix addresses the symptom by reducing property updates. If the issue persists, we may need to investigate environment-image attribute or lighting estimation settings.
 
