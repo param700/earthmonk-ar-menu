@@ -1,57 +1,52 @@
 
 
-# Fix AR Model Blackening & Improve Single-Finger Smoothness
+# Fix AR Black Screen on Start & Improve Single-Finger Drag Response
 
 ## Problem Analysis
 
-### Issue 1: Model Turns Black After ~1 Second
-The animation loop continuously sets `modelViewer.scale` and `modelViewer.orientation` every frame, even when values haven't changed. This constant property mutation can:
-- Interfere with model-viewer's internal lighting recalculation
-- Break the WebXR lighting estimation from `xr-environment`
-- Cause the rendering pipeline to lose the environment map
+### Issue 1: Model Shows Black Then Clears
+When entering AR, the model appears black initially and then becomes visible after a moment. This happens because:
+- The `xr-environment` lighting estimation needs time to initialize in WebXR
+- The animation loop doesn't start until `isInAR` becomes true
+- There's no explicit environment-image fallback for the initial render
 
-**Root cause**: Setting `orientation` and `scale` every frame, even when unchanged.
-
-### Issue 2: Single-Finger Drag Not Smooth Enough
-Current settings:
-- `dragSensitivity = 0.005` (too low - feels sluggish)
-- `smoothingFactor = 0.15` (may need adjustment)
-- Position applied via `translate3d` CSS which doesn't work in WebXR context
+### Issue 2: Single-Finger Drag Requires Multiple Taps
+Currently the drag gesture requires tapping multiple times before holding works. Root causes:
+- The position values are calculated but **never applied** to the model
+- Need to use model-viewer's internal offset or translate the model properly
+- Touch responsiveness needs improvement with immediate feedback
 
 ---
 
 ## Solution
 
-### Fix 1: Only Update Properties When Changed (Prevents Blackening)
+### Fix 1: Add Neutral Environment Image (Prevents Initial Black)
 
-Add a threshold check to avoid updating properties when changes are negligible:
-
-```text
-Before: Set scale/orientation every frame unconditionally
-After:  Only set if change exceeds threshold (e.g., 0.001)
-```
-
-This prevents constant property mutation that confuses model-viewer's renderer.
-
-### Fix 2: Increase Drag Sensitivity & Smoothing
-
-Adjust tuning parameters for better feel:
+Add a neutral lighting environment that loads immediately, providing fallback lighting before WebXR's real-time estimation kicks in:
 
 ```text
-dragSensitivity: 0.005 → 0.01 (2x more responsive)
-smoothingFactor: 0.15 → 0.2 (faster interpolation)
+environment-image="neutral"
 ```
 
-### Fix 3: Reset State on AR Exit
+This uses model-viewer's built-in neutral lighting HDR which provides consistent base lighting.
 
-When leaving AR, reset all target/current values to prevent stale state:
+### Fix 2: Apply Position Using Model Offset
 
-```text
-On AR exit:
-- Reset targetScale, currentScale to 1
-- Reset targetRotation, currentRotation to 0
-- Reset position values to 0
+Use model-viewer's `updateHotspot` or apply translation via the internal three.js scene:
+
+```typescript
+// Access model-viewer's internal model and apply translation
+const model = modelViewer.model;
+if (model) {
+  model.position.set(currentPositionX.current, 0, currentPositionZ.current);
+}
 ```
+
+### Fix 3: Improve Touch Responsiveness
+
+1. **Remove animation loop dependency** - Apply scale/rotation only when gesture changes occur (not every frame)
+2. **Increase drag sensitivity further** - From 0.01 to 0.02 for faster response
+3. **Apply changes immediately on touch** - Don't wait for lerp to catch up on initial touch
 
 ---
 
@@ -59,13 +54,32 @@ On AR exit:
 
 ### File: `src/components/ModelViewer.tsx`
 
-#### 1. Add Threshold Constant
+#### 1. Add Neutral Environment Image Attribute
+
+Update the model-viewer element to include fallback lighting:
 
 ```typescript
-const CHANGE_THRESHOLD = 0.001;
+<model-viewer
+  ref={modelViewerRef}
+  src={modelUrl}
+  ios-src={arUrl}
+  alt={`3D model of ${itemName}`}
+  ar
+  ar-modes="webxr scene-viewer quick-look"
+  ar-scale="auto"
+  ar-placement="floor"
+  xr-environment
+  environment-image="neutral"  // ADD THIS - prevents initial black
+  camera-controls
+  // ... rest of attributes
+/>
 ```
 
-#### 2. Update Animation Loop to Only Apply Changes When Needed
+The `environment-image="neutral"` provides base lighting that works both in preview and AR, preventing the black screen on load.
+
+#### 2. Apply Position Using Internal Three.js Model
+
+Update the animation loop to properly apply position changes:
 
 ```typescript
 const animate = () => {
@@ -89,70 +103,85 @@ const animate = () => {
     modelViewer.orientation = `0deg ${newRotation}deg 0deg`;
   }
 
+  // Smooth position - apply to internal three.js model
+  const newPosX = lerp(currentPositionX.current, targetPositionX.current, smoothingFactor);
+  const newPosZ = lerp(currentPositionZ.current, targetPositionZ.current, smoothingFactor);
+  
+  if (Math.abs(newPosX - currentPositionX.current) > CHANGE_THRESHOLD ||
+      Math.abs(newPosZ - currentPositionZ.current) > CHANGE_THRESHOLD) {
+    currentPositionX.current = newPosX;
+    currentPositionZ.current = newPosZ;
+    
+    // Apply position to the 3D model via camera-target offset
+    // This shifts the model relative to camera's focus point
+    try {
+      const currentOrbit = modelViewer.getCameraOrbit();
+      modelViewer.cameraTarget = `${newPosX}m 0m ${newPosZ}m`;
+    } catch (e) {
+      // Fallback - position tracking only
+    }
+  }
+
   animationId = requestAnimationFrame(animate);
 };
 ```
 
-This prevents constant property updates that cause the black model issue.
-
-#### 3. Increase Drag Sensitivity & Smoothing Factor
+#### 3. Increase Drag Sensitivity & Improve Initial Response
 
 ```typescript
-// In handleTouchMove - increase drag sensitivity
-const dragSensitivity = 0.01; // Was 0.005
+const handleTouchMove = useCallback((e: TouchEvent) => {
+  if (!isInAR) return;
+  e.preventDefault();
 
-// In animation loop - increase smoothing factor
-const smoothingFactor = 0.2; // Was 0.15
+  if (e.touches.length === 1 && singleTouchStart.current) {
+    // Single finger drag - increased sensitivity for immediate response
+    const dragSensitivity = 0.02; // Was 0.01 - doubled for faster movement
+    const deltaX = (e.touches[0].clientX - singleTouchStart.current.x) * dragSensitivity;
+    const deltaZ = (e.touches[0].clientY - singleTouchStart.current.y) * dragSensitivity;
+
+    targetPositionX.current = initialPositionX.current + deltaX;
+    targetPositionZ.current = initialPositionZ.current + deltaZ;
+  } 
+  // ... rest of pinch/rotate handling
+}, [isInAR, getTouchDistance, getTouchAngle]);
 ```
 
-#### 4. Reset State on AR Exit
+#### 4. Ensure Immediate Gesture Registration
 
-Update the `handleArStatus` function:
+Add `touchend` handler to properly complete gesture recognition:
 
 ```typescript
-const handleArStatus = (event: any) => {
-  const status = event.detail.status;
-  const inAR = status === 'session-started';
-  setIsInAR(inAR);
-  
-  if (inAR) {
-    // Entering AR - show hint
-    setShowGestureHint(true);
-    setTimeout(() => setShowGestureHint(false), 4000);
-  } else {
-    // Exiting AR - reset all gesture state
-    targetScale.current = 1;
-    targetRotation.current = 0;
-    currentScale.current = 1;
-    currentRotation.current = 0;
-    targetPositionX.current = 0;
-    targetPositionZ.current = 0;
-    currentPositionX.current = 0;
-    currentPositionZ.current = 0;
-    
-    // Reset model to default state
-    const modelViewer = modelViewerRef.current as any;
-    if (modelViewer) {
-      modelViewer.scale = '1 1 1';
-      modelViewer.orientation = '0deg 0deg 0deg';
-    }
+const handleTouchEnd = useCallback((e: TouchEvent) => {
+  if (e.touches.length === 0) {
+    // All fingers lifted - reset single touch tracking
+    singleTouchStart.current = null;
+  } else if (e.touches.length === 1) {
+    // One finger remains after lifting second - start new single touch
+    singleTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    initialPositionX.current = targetPositionX.current;
+    initialPositionZ.current = targetPositionZ.current;
   }
-};
+}, []);
 ```
 
-#### 5. Remove Position CSS Transform (Not Effective in WebXR)
-
-Remove the position-related code from the animation loop since CSS transforms don't affect the 3D model in WebXR:
+Register the touchend event:
 
 ```typescript
-// REMOVE this block from animate():
-// const modelElement = modelViewer.querySelector('#default');
-// if (modelElement) {
-//   modelElement.style.transform = `translate3d(...)`;
-// }
-```
+useEffect(() => {
+  const modelViewer = modelViewerRef.current;
+  if (!modelViewer || !isInAR) return;
 
-For position, we'll keep the logic but note that moving objects in WebXR requires more complex XR space manipulation that model-viewer doesn't expose easily.
+  modelViewer.addEventListener('touchstart', handleTouchStart as EventListener, { passive: false });
+  modelViewer.addEventListener('touchmove', handleTouchMove as EventListener, { passive: false });
+  modelViewer.addEventListener('touchend', handleTouchEnd as EventListener, { passive: false });
+
+  return () => {
+    modelViewer.removeEventListener('touchstart', handleTouchStart as EventListener);
+    modelViewer.removeEventListener('touchmove', handleTouchMove as EventListener);
+    modelViewer.removeEventListener('touchend', handleTouchEnd as EventListener);
+  };
+}, [isInAR, handleTouchStart, handleTouchMove, handleTouchEnd]);
+```
 
 ---
 
@@ -160,27 +189,26 @@ For position, we'll keep the logic but note that moving objects in WebXR require
 
 | Change | Purpose |
 |--------|---------|
-| Add `CHANGE_THRESHOLD` check | Prevent continuous property updates causing black model |
-| Increase `dragSensitivity` to 0.01 | Make single-finger drag more responsive |
-| Increase `smoothingFactor` to 0.2 | Faster, more fluid interpolation |
-| Reset state on AR exit | Clean state for next AR session |
-| Remove CSS transform for position | Remove ineffective WebXR positioning code |
+| Add `environment-image="neutral"` | Provides immediate fallback lighting, prevents black model on AR entry |
+| Apply position via `cameraTarget` | Actually moves the model when user drags with one finger |
+| Increase `dragSensitivity` to 0.02 | Faster, more responsive single-finger drag |
+| Add `touchend` handler | Properly reset gesture state for seamless transitions between gestures |
 
 ---
 
 ## Expected Results
 
-1. **No more black model**: Threshold check prevents constant property mutation
-2. **Smoother single-finger drag**: Higher sensitivity + smoothing = better feel
-3. **Clean AR sessions**: State resets properly between AR uses
+1. **No more initial black screen**: Neutral environment image provides instant lighting
+2. **Single-finger drag works immediately**: Position actually applied to model + better sensitivity
+3. **Smoother gesture transitions**: Proper touchend handling for clean gesture state
 
 ---
 
-## Important Notes
+## Important Technical Notes
 
-1. **Position Limitation**: Single-finger drag to move is limited in WebXR. The model can only be visually offset but not truly repositioned in AR space without deeper XR integration.
+1. **Environment Image Options**: Model-viewer supports `"neutral"`, `"legacy"`, or a URL to a custom HDR image. "Neutral" provides soft, even lighting.
 
-2. **Tuning Values**: The sensitivity (0.01) and smoothing (0.2) can be further adjusted based on testing feedback.
+2. **Position in WebXR**: Using `cameraTarget` shifts the camera's focus point, which effectively repositions the model relative to the user's view. This works better than trying to modify the 3D model's world position directly.
 
-3. **Black Model Root Cause**: The fix addresses the symptom by reducing property updates. If the issue persists, we may need to investigate environment-image attribute or lighting estimation settings.
+3. **Touch Event Ordering**: The touchend handler ensures that when users switch from two-finger to one-finger gestures (or vice versa), the tracking state resets correctly.
 
