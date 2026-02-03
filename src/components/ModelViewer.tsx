@@ -121,8 +121,8 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
     e.preventDefault();
 
     if (e.touches.length === 1 && singleTouchStart.current) {
-      // Single finger drag - move model (increased sensitivity for smoother feel)
-      const dragSensitivity = 0.01;
+      // Single finger drag - move model (doubled sensitivity for faster response)
+      const dragSensitivity = 0.02;
       const deltaX = (e.touches[0].clientX - singleTouchStart.current.x) * dragSensitivity;
       const deltaZ = (e.touches[0].clientY - singleTouchStart.current.y) * dragSensitivity;
 
@@ -139,6 +139,19 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
       targetRotation.current = initialRotation.current + angleDelta;
     }
   }, [isInAR, getTouchDistance, getTouchAngle]);
+
+  // Handle touch end to properly reset gesture state
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
+    if (e.touches.length === 0) {
+      // All fingers lifted - reset single touch tracking
+      singleTouchStart.current = null;
+    } else if (e.touches.length === 1) {
+      // One finger remains after lifting second - start new single touch
+      singleTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      initialPositionX.current = targetPositionX.current;
+      initialPositionZ.current = targetPositionZ.current;
+    }
+  }, []);
 
   useEffect(() => {
     // Load model-viewer script
@@ -217,12 +230,14 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
 
     modelViewer.addEventListener('touchstart', handleTouchStart as EventListener, { passive: false });
     modelViewer.addEventListener('touchmove', handleTouchMove as EventListener, { passive: false });
+    modelViewer.addEventListener('touchend', handleTouchEnd as EventListener, { passive: false });
 
     return () => {
       modelViewer.removeEventListener('touchstart', handleTouchStart as EventListener);
       modelViewer.removeEventListener('touchmove', handleTouchMove as EventListener);
+      modelViewer.removeEventListener('touchend', handleTouchEnd as EventListener);
     };
-  }, [isInAR, handleTouchStart, handleTouchMove]);
+  }, [isInAR, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   // Smooth animation loop for AR gestures
   useEffect(() => {
@@ -252,9 +267,22 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
         modelViewer.orientation = `0deg ${newRotation}deg 0deg`;
       }
 
-      // Smooth position (tracked but not applied via CSS - WebXR limitation)
-      currentPositionX.current = lerp(currentPositionX.current, targetPositionX.current, smoothingFactor);
-      currentPositionZ.current = lerp(currentPositionZ.current, targetPositionZ.current, smoothingFactor);
+      // Smooth position - apply via cameraTarget to actually move the model
+      const newPosX = lerp(currentPositionX.current, targetPositionX.current, smoothingFactor);
+      const newPosZ = lerp(currentPositionZ.current, targetPositionZ.current, smoothingFactor);
+      
+      if (Math.abs(newPosX - currentPositionX.current) > CHANGE_THRESHOLD ||
+          Math.abs(newPosZ - currentPositionZ.current) > CHANGE_THRESHOLD) {
+        currentPositionX.current = newPosX;
+        currentPositionZ.current = newPosZ;
+        
+        // Apply position to the 3D model via camera-target offset
+        try {
+          modelViewer.cameraTarget = `${newPosX}m 0m ${newPosZ}m`;
+        } catch (e) {
+          // Fallback - position tracking only
+        }
+      }
 
       animationId = requestAnimationFrame(animate);
     };
@@ -314,6 +342,7 @@ const ModelViewer = ({ modelSrc, arSrc, itemName, posterImage, startInAr }: Mode
         ar-scale="auto"
         ar-placement="floor"
         xr-environment
+        environment-image="neutral"
         camera-controls
         auto-rotate={autoRotate}
         shadow-intensity="1"
