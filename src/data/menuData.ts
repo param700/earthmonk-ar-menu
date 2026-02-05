@@ -52,6 +52,7 @@ const MENU_IMAGES = {
 // Cloudinary paths for 3D models (must include .glb extension)
 const MODEL_3D = {
   sampleDish: "output_bk3tev.glb",
+  tiramisu: "/models/tiramisu.glb", // Local model
 };
 
 export const menuCategories: Category[] = [
@@ -260,7 +261,7 @@ export const menuCategories: Category[] = [
         currency: "₹",
         description: "Layers of coffee-soaked ladyfingers with mascarpone cream",
         image: MENU_IMAGES.tiramisu,
-        model3D: MODEL_3D.sampleDish,
+        model3D: MODEL_3D.tiramisu,
         ingredients: ["Mascarpone", "Coffee", "Ladyfingers", "Cocoa"],
         isVeg: true,
         isSpicy: false,
