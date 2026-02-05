@@ -52,7 +52,7 @@ const MENU_IMAGES = {
 // Cloudinary paths for 3D models (must include .glb extension)
 const MODEL_3D = {
   sampleDish: "output_bk3tev.glb",
-  tiramisu: "/models/tiramisu.glb", // Local model
+  tiramisu: "3DModel_y7evpz.glb", // Cloudinary model
 };
 
 export const menuCategories: Category[] = [
