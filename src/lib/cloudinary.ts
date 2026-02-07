@@ -87,5 +87,5 @@ export const getRawFileUrl = (publicId: string): string => {
   if (publicId.startsWith("http") || publicId.startsWith("/")) {
     return publicId;
   }
-  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${publicId}`;
+  return `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/${publicId}`;
 };
