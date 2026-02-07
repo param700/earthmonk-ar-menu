@@ -49,10 +49,10 @@ const MENU_IMAGES = {
   chocolateLava: "Chocolate_Lava_Cake_ryndhn",
 };
 
-// Cloudinary paths for 3D models (must include .glb extension)
+// Cloudinary full URLs for 3D models (different upload types need different endpoints)
 const MODEL_3D = {
-  sampleDish: "output_bk3tev.glb",
-  tiramisu: "3DModel_y7evpz.glb", // Cloudinary model
+  sampleDish: "https://res.cloudinary.com/dlnn95ku7/image/upload/output_bk3tev.glb",
+  tiramisu: "https://res.cloudinary.com/dlnn95ku7/raw/upload/3DModel_y7evpz.glb",
 };
 
 export const menuCategories: Category[] = [
