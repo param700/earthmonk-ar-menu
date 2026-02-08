@@ -305,4 +305,4 @@ export const getAllItems = (): { category: Category; item: MenuItem }[] => {
 };
 
 // Cloudinary video path for intro
-export const INTRO_VIDEO_PATH = "earthmonk-intro_oucm79.mp4";
+export const INTRO_VIDEO_PATH = "globsalvideo2_ptqvcd";
