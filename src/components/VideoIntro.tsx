@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getVideoUrl, getImageUrl } from "@/lib/cloudinary";
-
-const LOGO_PUBLIC_ID = "earthmonk-logo_ige8wg";
+import { getVideoUrl } from "@/lib/cloudinary";
+import piBy2Logo from "@/assets/pi-by-2-logo.png";
 
 interface VideoIntroProps {
   videoSrc: string;
@@ -80,8 +79,8 @@ const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroPr
         <div className="flex flex-col items-center gap-6 animate-fade-in-up">
           {/* Logo Image */}
           <img 
-            src={getImageUrl(LOGO_PUBLIC_ID, { width: 400, quality: "auto:best" })} 
-            alt="The House of Earthmonk" 
+            src={piBy2Logo} 
+            alt="Pi By 2 Cafe" 
             className="w-64 md:w-80 animate-pulse-subtle"
           />
           {/* Elegant Loading Bar */}
@@ -116,8 +115,8 @@ const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroPr
         }`}
       >
         <img 
-          src={getImageUrl(LOGO_PUBLIC_ID, { width: 500, quality: "auto:best" })} 
-          alt="The House of Earthmonk" 
+          src={piBy2Logo} 
+          alt="Pi By 2 Cafe" 
           className="w-72 md:w-96 animate-fade-in"
         />
       </div>
