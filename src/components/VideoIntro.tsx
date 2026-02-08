@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getVideoUrl } from "@/lib/cloudinary";
-import piBy2Logo from "@/assets/pi-by-2-logo.png";
+import restroLogo from "@/assets/restro-logo.png";
 
 interface VideoIntroProps {
   videoSrc: string;
@@ -79,8 +79,8 @@ const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroPr
         <div className="flex flex-col items-center gap-6 animate-fade-in-up">
           {/* Logo Image */}
           <img 
-            src={piBy2Logo} 
-            alt="Pi By 2 Cafe" 
+            src={restroLogo} 
+            alt="Restro Global Cuisine" 
             className="w-64 md:w-80 animate-pulse-subtle"
           />
           {/* Elegant Loading Bar */}
@@ -115,8 +115,8 @@ const VideoIntro = ({ videoSrc, onComplete, redirectTo = "/home" }: VideoIntroPr
         }`}
       >
         <img 
-          src={piBy2Logo} 
-          alt="Pi By 2 Cafe" 
+          src={restroLogo} 
+          alt="Restro Global Cuisine" 
           className="w-72 md:w-96 animate-fade-in"
         />
       </div>
