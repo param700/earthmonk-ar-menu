@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import piBy2Logo from "@/assets/pi-by-2-logo.png";
+import kruncheezLogo from "@/assets/kruncheez-header-logo.png";
 
 interface HeaderProps {
   showBack?: boolean;
@@ -29,7 +29,7 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
             <h1 className="font-display text-xl text-foreground">{title}</h1>
           ) : (
             <Link to="/home" className="flex items-center gap-3">
-              <img src={piBy2Logo} alt="Pi By 2 Cafe" className="w-10 h-10 rounded-full object-cover" />
+              <img src={kruncheezLogo} alt="Kruncheez Café & Patisserie" className="w-10 h-10 rounded-full object-cover" />
               <div className="hidden sm:block">
                 <span className="font-display text-lg text-foreground block leading-tight">Pi By 2</span>
                 <span className="text-xs text-muted-foreground">Your Food Constant</span>
@@ -41,7 +41,7 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
         {/* Right Section - Logo when showing title */}
         {title && (
           <Link to="/home" className="flex items-center gap-2">
-            <img src={piBy2Logo} alt="Pi By 2 Cafe" className="w-9 h-9 rounded-full object-cover" />
+            <img src={kruncheezLogo} alt="Kruncheez Café & Patisserie" className="w-9 h-9 rounded-full object-cover" />
           </Link>
         )}
       </div>
